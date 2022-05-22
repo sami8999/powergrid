@@ -1,17 +1,20 @@
 weighting = {
 
     "consumption": -2,
-    "production": 1,
+    "production": 2,
     "fuel_cost":-1,
-    "cost":-1
+    "cost":-1,
+    "fuel_usefulness":30,
+    "price_appeal":30,
+    "houses_to_power": 0.5
 }
 
 fuel_cost = {
 
-    "oil": 3,
-    "coal": 1,
-    "nuclear": 14,
-    "trash": 6,
+    "Oil": 3,
+    "Coal": 1,
+    "Nuclear": 14,
+    "Trash": 6,
 }
 
 import jsonify
@@ -29,11 +32,11 @@ class State:
     owned_powerplants = [] # list of dictionaries
     owned_houses = [] # list of dictionaries
 
-    fuel_stocks = {
-        "coal": 0,
-        "oil": 0,
-        "trash": 0,
-        "nuclear": 0
+    fuel_reserves = {
+        "Coal": 0,
+        "Oil": 0,
+        "Trash": 0,
+        "Nuclear": 0
     }
 
     enemies = [] # List of Enemy Objects
@@ -84,27 +87,44 @@ class State:
 
     def compute_fuel_cost(self, fuel_market_state):
 
-        weighting['fuel']["oil"] = 1+ ((24-fuel_market_state["Oil"])/3) 
-        weighting['fuel']["coal"] = 1+ ((24-fuel_market_state["Coal"])/3) 
-        weighting['fuel']["trash"] = 1+ ((24-fuel_market_state["Trash"])/3) 
-        weighting['fuel']["nuclear"] = 13 - fuel_market_state["Nuclear"] if fuel_market_state["Nuclear"]>4 else 18 - (fuel_market_state["Nuclear"] * 2)
-
+        fuel_cost["Oil"] = 1+ ((24-fuel_market_state["Oil"])/3) 
+        fuel_cost["Coal"] = 1+ ((24-fuel_market_state["Coal"])/3) 
+        fuel_cost["Trash"] = 1+ ((24-fuel_market_state["Trash"])/3) 
+        fuel_cost["Nuclear"] = 13 - fuel_market_state["Nuclear"] if fuel_market_state["Nuclear"]>4 else 18 - (fuel_market_state["Nuclear"] * 2)
 
     def compute_bid(self,auction): 
 
         # bidding is a function of value to us and value to opponents 
         # at a score defined by our weigthing determine whether to bid or pass 
 
-        # value to us
-        consumption = weighting["consumption"][str(auction["auctionedPowerPlant"]["consumption"])]
-        production = weighting["production"][str(auction["auctionedPowerPlant"]["production"])]
+        # absolute score
+        consumption = weighting["consumption"] * auction["auctionedPowerPlant"]["consumption"]
+        production = weighting["production"] * auction["auctionedPowerPlant"]["production"]
         cost =  weighting["cost"] * auction["highestBid"] if auction["highestBid"] !=0 else weighting["cost"] * auction["auctionedPowerPlant"]["baseCost"]
         self.compute_fuel_cost(auction['gameState']['fuelMarketState'])
-        fuel = weighting["fuel"]
+        fuel = weighting["fuel_cost"] *  fuel_cost[str(auction["auctionedPowerPlant"]["fuelType"])]
+        absolute_score = consumption + production + cost + fuel
 
-        absolute_score = consumption + production + cost + fuel #cost wrong
+        # strategic score to us 
+        fuel_usefulness = (self.fuel_reserves[str(auction["auctionedPowerPlant"]["fuelType"])] / sum(self.fuel_reserves.values())) * weighting["fuel_usefulness"]
+        price_appeal = ((auction["highestBid"] if auction["highestBid"] !=0 else auction["auctionedPowerPlant"]["baseCost"]) / self.cash_reserves) * weighting["price_appeal"]  
+        houses_now_able_to_power = auction["auctionedPowerPlant"]["production"] * weighting["houses_to_power"] if auction["auctionedPowerPlant"]["consumption"] <= self.fuel_reserves[str(auction["auctionedPowerPlant"]["fuelType"])] else 0
+        strategic_score_to_us = fuel_usefulness + price_appeal
 
-        strategic_score = 
+        # value to others 
+
+        # strategic score to others 
+        op_fuel_usefulness = 0
+        op_price_appeal = 0
+        op_able_to_power = 0
+
+        # quantify value of powerplant to each opponents and make decision based in conjuction to valut to us 
+        # look at fuel stocks of opponents, 
+        # how much they can power given assuming they win the auction 
+        # there cash reserves 
+        # powerplants owned 
+        # value = percentage of fueltype owned 
+    
         
     def checking_balance(self, expense):
         # Makes sure we never go into debt
@@ -116,13 +136,6 @@ class State:
     def add_powerplant_to_owned(self, response):
         if response["winner"]["name"] == self.name:
             self.owned_powerplants.append(response["winner"]["auctionedPowerPlant"])
-        
-        # value to others 
-        # quantify value of powerplant to each opponents and make decision based in conjuction to valut to us 
-        # look at fuel stocks of opponents, how much + can they power
-        # there cash reserves 
-        # powerplants owned 
-        # value = percentage of fueltype owned 
     
 
 
