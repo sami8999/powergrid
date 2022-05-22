@@ -8,10 +8,10 @@ weighting = {
 
 fuel_cost = {
 
-    "oil": 3,
-    "coal": 1,
-    "nuclear": 14,
-    "trash": 6,
+    "Oil": 3,
+    "Coal": 1,
+    "Nuclear": 14,
+    "Trash": 6,
 }
 
 class State:
@@ -25,11 +25,11 @@ class State:
     total_number_of_houses = 0
     powerplants = []
 
-    fuel_stocks = {
-        "coal": 0,
-        "oil": 0,
-        "trash": 0,
-        "nuclear": 0
+    fuel_reserves = {
+        "Coal": 0,
+        "Oil": 0,
+        "Trash": 0,
+        "Nuclear": 0
     }
 
     def __init__(self):
@@ -62,28 +62,30 @@ class State:
 
     def compute_fuel_cost(self, fuel_market_state):
 
-        fuel_cost["oil"] = 1+ ((24-fuel_market_state["Oil"])/3) 
-        fuel_cost["coal"] = 1+ ((24-fuel_market_state["Coal"])/3) 
-        fuel_cost["trash"] = 1+ ((24-fuel_market_state["Trash"])/3) 
-        fuel_cost["nuclear"] = 13 - fuel_market_state["Nuclear"] if fuel_market_state["Nuclear"]>4 else 18 - (fuel_market_state["Nuclear"] * 2)
-
+        fuel_cost["Oil"] = 1+ ((24-fuel_market_state["Oil"])/3) 
+        fuel_cost["Coal"] = 1+ ((24-fuel_market_state["Coal"])/3) 
+        fuel_cost["Trash"] = 1+ ((24-fuel_market_state["Trash"])/3) 
+        fuel_cost["Nuclear"] = 13 - fuel_market_state["Nuclear"] if fuel_market_state["Nuclear"]>4 else 18 - (fuel_market_state["Nuclear"] * 2)
 
     def compute_bid(self,auction): 
 
         # bidding is a function of value to us and value to opponents 
         # at a score defined by our weigthing determine whether to bid or pass 
 
-        # value to us
-        consumption = weighting["consumption"][str(auction["auctionedPowerPlant"]["consumption"])]
-        production = weighting["production"][str(auction["auctionedPowerPlant"]["production"])]
+        # absolute score
+        consumption = weighting["consumption"] * auction["auctionedPowerPlant"]["consumption"]
+        production = weighting["production"] * auction["auctionedPowerPlant"]["production"]
         cost =  weighting["cost"] * auction["highestBid"] if auction["highestBid"] !=0 else weighting["cost"] * auction["auctionedPowerPlant"]["baseCost"]
-
         self.compute_fuel_cost(auction['gameState']['fuelMarketState'])
-        fuel = weighting["fuel"]
+        fuel = weighting["fuel_cost"] *  fuel_cost[str(auction["auctionedPowerPlant"]["fuelType"])]
+        absolute_score = consumption + production + cost + fuel
 
-        absolute_score = consumption + production + cost + fuel #cost wrong
+        # strategic score
+        fuel_ratio = self.fuel_reserves[str(auction["auctionedPowerPlant"]["fuelType"])] / sum(self.fuel_reserves.values())
 
-        strategic_score = 
+
+
+        # strategic_score = 
         
 
 
