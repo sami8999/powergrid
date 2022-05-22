@@ -5,7 +5,8 @@ weighting = {
     "fuel_cost":-1,
     "cost":-1,
     "fuel_usefulness":30,
-    "price_appeal":30
+    "price_appeal":30,
+    "houses_to_power": 0.5
 }
 
 fuel_cost = {
@@ -85,13 +86,20 @@ class State:
         # strategic score to us 
         fuel_usefulness = (self.fuel_reserves[str(auction["auctionedPowerPlant"]["fuelType"])] / sum(self.fuel_reserves.values())) * weighting["fuel_usefulness"]
         price_appeal = ((auction["highestBid"] if auction["highestBid"] !=0 else auction["auctionedPowerPlant"]["baseCost"]) / self.cash_reserves) * weighting["price_appeal"]  
-        strategic_score_to_us = fuel_usefulness * price_appeal
+        houses_now_able_to_power = auction["auctionedPowerPlant"]["production"] * weighting["houses_to_power"] if auction["auctionedPowerPlant"]["consumption"] <= self.fuel_reserves[str(auction["auctionedPowerPlant"]["fuelType"])] else 0
+        strategic_score_to_us = fuel_usefulness + price_appeal
         
 
+        # strategic score to others 
+        op_fuel_usefulness = 0
+        op_price_appeal = 0
+        op_able_to_power
 
-        # value to others 
+
+
         # quantify value of powerplant to each opponents and make decision based in conjuction to valut to us 
-        # look at fuel stocks of opponents, how much + can they power
+        # look at fuel stocks of opponents, 
+        # how much they can power given assuming they win the auction 
         # there cash reserves 
         # powerplants owned 
         # value = percentage of fueltype owned 
