@@ -1,9 +1,11 @@
 weighting = {
 
     "consumption": -2,
-    "production": 1,
+    "production": 2,
     "fuel_cost":-1,
-    "cost":-1
+    "cost":-1,
+    "fuel_usefulness":30,
+    "price_appeal":30
 }
 
 fuel_cost = {
@@ -80,12 +82,10 @@ class State:
         fuel = weighting["fuel_cost"] *  fuel_cost[str(auction["auctionedPowerPlant"]["fuelType"])]
         absolute_score = consumption + production + cost + fuel
 
-        # strategic score
-        fuel_ratio = self.fuel_reserves[str(auction["auctionedPowerPlant"]["fuelType"])] / sum(self.fuel_reserves.values())
-
-
-
-        # strategic_score = 
+        # strategic score to us 
+        fuel_usefulness = (self.fuel_reserves[str(auction["auctionedPowerPlant"]["fuelType"])] / sum(self.fuel_reserves.values())) * weighting["fuel_usefulness"]
+        price_appeal = ((auction["highestBid"] if auction["highestBid"] !=0 else auction["auctionedPowerPlant"]["baseCost"]) / self.cash_reserves) * weighting["price_appeal"]  
+        strategic_score_to_us = fuel_usefulness * price_appeal
         
 
 
