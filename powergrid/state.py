@@ -41,9 +41,9 @@ class State:
 
         for powerplant in auction_pool:
             consumption = weighting["consumption"] * powerplant["consumption"]
-            production = weighting["production"] * [str(powerplant["production"])]
+            production = weighting["production"] * powerplant["production"]
             base_cost = weighting["base_cost"] * powerplant["baseCost"]
-            fuel_cost = weighting["fuel_cost"] * powerplant["fuelType"] 
+            fuel_cost = weighting["fuel_cost"] *  fuel_cost[str(powerplant["fuelType"])] 
             total_score = consumption + production + base_cost + fuel_cost
             powerplants.append({
                 "name":powerplant["id"],
