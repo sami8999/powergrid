@@ -62,10 +62,10 @@ class State:
 
     def compute_fuel_cost(self, fuel_market_state):
 
-        weighting['fuel']["oil"] = 1+ ((24-fuel_market_state["Oil"])/3) 
-        weighting['fuel']["coal"] = 1+ ((24-fuel_market_state["Coal"])/3) 
-        weighting['fuel']["trash"] = 1+ ((24-fuel_market_state["Trash"])/3) 
-        weighting['fuel']["nuclear"] = 13 - fuel_market_state["Nuclear"] if fuel_market_state["Nuclear"]>4 else 18 - (fuel_market_state["Nuclear"] * 2)
+        fuel_cost["oil"] = 1+ ((24-fuel_market_state["Oil"])/3) 
+        fuel_cost["coal"] = 1+ ((24-fuel_market_state["Coal"])/3) 
+        fuel_cost["trash"] = 1+ ((24-fuel_market_state["Trash"])/3) 
+        fuel_cost["nuclear"] = 13 - fuel_market_state["Nuclear"] if fuel_market_state["Nuclear"]>4 else 18 - (fuel_market_state["Nuclear"] * 2)
 
 
     def compute_bid(self,auction): 
@@ -77,6 +77,7 @@ class State:
         consumption = weighting["consumption"][str(auction["auctionedPowerPlant"]["consumption"])]
         production = weighting["production"][str(auction["auctionedPowerPlant"]["production"])]
         cost =  weighting["cost"] * auction["highestBid"] if auction["highestBid"] !=0 else weighting["cost"] * auction["auctionedPowerPlant"]["baseCost"]
+
         self.compute_fuel_cost(auction['gameState']['fuelMarketState'])
         fuel = weighting["fuel"]
 
