@@ -6,28 +6,8 @@ app = Flask(__name__)
 
 @app.route("/")
 def heartbeat():
-    return "Alive"
-
-
-@app.route("/pg/startGame", methods=['POST'])
-def start_game():
-    data = request.json
-    state.name = data.get("name")
-    return "Success"
-
-@app.route("/pg/gameNearlyOver", methods=['POST'])
-def game_nearly_over():
-    data = request.json
-    state.game_nearly_over = True
-    return "Hello, World!"
-
-
-@app.route("/pg/gameOver", methods=['POST'])
-def game_over():
-    data = request.json
-    state.game_over = True
-    return "Hello, World!"
-
+    success = state.successful_response()
+    return success
 
 @app.route("/pg/leadAuction", methods=['POST'])
 def lead_auction():
@@ -43,12 +23,6 @@ def bid_auction():
     auction = data
     body = state.compute_bid(auction)
     return body 
-
-
-@app.route("/pg/wonAuction", methods=['POST'])
-def won_auction():
-    data = request.json
-    return "Hello, World!"
 
 
 @app.route("/pg/purchaseFuel", methods=['POST'])
@@ -80,6 +54,34 @@ def power_houses():
     data = request.json
     return "Hello, World!"
 
+'''
+Blank Return Methods
+'''
+
+@app.route("/pg/startGame", methods=['POST'])
+def start_game():
+    data = request.json
+    state.name = data.get("name")
+    success = state.successful_response()
+    return success
+
+@app.route("/pg/wonAuction", methods=['POST'])
+def won_auction():
+    data = request.json
+    state.add_powerplant_to_owned(data)
+    success = state.successful_response()
+    return success
+
+@app.route("/pg/gameNearlyOver", methods=['POST'])
+def game_nearly_over():
+    success = state.successful_response()
+    return success
+
+
+@app.route("/pg/gameOver", methods=['POST'])
+def game_over():
+    success = state.successful_response()
+    return success
 
 if __name__ == "__main__":
     app.run(debug=True)

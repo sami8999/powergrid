@@ -14,16 +14,20 @@ fuel_cost = {
     "trash": 6,
 }
 
+import jsonify
 class State:
 
     name = ""
     game_nearly_over = False
-    game_over = False 
+    game_over = False
+
+    cash_balance = 0 # How much cash we have
 
     number_of_houses = 0
-    cash_reserves = 0
+    
     total_number_of_houses = 0
-    powerplants = []
+    owned_powerplants = [] # list of dictionaries
+    owned_houses = [] # list of dictionaries
 
     fuel_stocks = {
         "coal": 0,
@@ -32,7 +36,25 @@ class State:
         "nuclear": 0
     }
 
+    enemies = [] # List of Enemy Objects
+
     def __init__(self):
+        pass
+    
+
+    @staticmethod
+    def successful_response(self):
+        resp = jsonify(success=True)
+        return resp
+    
+    def return_enemy_object(self, name):
+        # Find Enemy Object Based on Name
+        for enemy in self.enemies:
+            if enemy.name == name:
+                return enemy
+
+    def update_enemy_state(self, enemy_object, payload):
+        # Update Enemy Attributes based on most recent payload
         pass
 
     def compute_lead_auction(self, auction_pool): 
@@ -84,16 +106,24 @@ class State:
 
         strategic_score = 
         
-
-
+    def checking_balance(self, expense):
+        # Makes sure we never go into debt
+        if expense > self.cash_balance:
+            return True
+        else:
+            return False
+    
+    def add_powerplant_to_owned(self, response):
+        if response["winner"]["name"] == self.name:
+            self.owned_powerplants.append(response["winner"]["auctionedPowerPlant"])
+        
         # value to others 
         # quantify value of powerplant to each opponents and make decision based in conjuction to valut to us 
         # look at fuel stocks of opponents, how much + can they power
         # there cash reserves 
         # powerplants owned 
         # value = percentage of fueltype owned 
-
-
+    
 
 
 
